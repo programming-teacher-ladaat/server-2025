@@ -1,5 +1,6 @@
 // 1. ייבוא
 import express from 'express';
+import productRouter from './routes/products.router.js';
 
 // 2. יצירת שרת
 const app = express();
@@ -10,18 +11,9 @@ app.use(express.json());
 // מאפשר לקבל באדי מתוך טופס
 app.use(express.urlencoded({ extended: true }));
 
-const products = [];
 
 // 3. טיפול בניתובים
-app.get('/products', (req, res) => {
-    // res.send(products); // מאפשר להחזיר הכל
-    res.json(products); // נעדיף להשתמש בצורה זו כדי לחייב לשלוח אוביקט
-});
-
-app.post('/products', (req, res) => {
-    products.push({ id: 100, name: 'milk', price: 5, amount: 10 })
-    res.json(products)
-});
+app.use('/products', productRouter);
 
 app.put('/try/:idx', (req, res) => {
     // req - כל מה שנשלח מהלקוח
