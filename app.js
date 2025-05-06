@@ -1,6 +1,13 @@
 // 1. ייבוא
 import express from 'express';
 import productRouter from './routes/products.router.js';
+import { config } from 'dotenv';
+import { connectDB } from './config/db.js';
+
+// למשתני הסביבה של המחשב .env מחבר את המשתנים בקובץ
+config();
+
+connectDB();
 
 // 2. יצירת שרת
 const app = express();
