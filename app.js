@@ -1,6 +1,7 @@
 // 1. ייבוא
 import express from 'express';
 import productRouter from './routes/products.router.js';
+import userRouter from './routes/users.router.js';
 import { config } from 'dotenv';
 import { connectDB } from './config/db.js';
 import { blockServer, printDate } from './middlewares/printDate.middleware.js';
@@ -45,6 +46,7 @@ app.use(printDate);
 // 3. טיפול בניתובים
 app.use('/products', productRouter);
 // app.use('/products', blockServer, productRouter);
+app.use('/users', userRouter)
 
 
 app.put('/try/:idx', (req, res) => {
