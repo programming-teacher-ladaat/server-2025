@@ -1,4 +1,4 @@
-import User, { generateToken } from '../models/user.model.js';
+import User, { generateToken, JoiUserSchemas } from '../models/user.model.js';
 import bcrypt from "bcryptjs";
 
 
@@ -14,6 +14,11 @@ export const getAllUsers = async (req, res, next) => {
 // sign-in
 export const login = async (req, res, next) => {
     try {
+        if (JoiUserSchemas.login.validate(req.body).error) {
+            return next({ status: 400, message: 'invalid data' }); // Bad Request - בקשה לא תקינה
+        }
+
+        // בוודאות הנתונים שנשלחו תקינים
         const { email, password } = req.body;
         // const email = req.body.email
         const user = await User.findOne({ email });
@@ -39,8 +44,13 @@ export const login = async (req, res, next) => {
 // sign-up
 export const register = async (req, res, next) => {
     try {
-        const { username, email, password, role } = req.body;
-        const user = new User({ username, email, password, role });
+        const v = JoiUserSchemas.register.validate(req.body);
+        if (v.error) {
+            return next({ status: 400, message: v.error }); // Bad Request - בקשה לא תקינה
+        }
+
+        const { username, email, password } = v.value;
+        const user = new User({ username, email, password });
         // TODO: hash the password - מתבצע אוטומטית לפני שמירה
         await user.save();
 

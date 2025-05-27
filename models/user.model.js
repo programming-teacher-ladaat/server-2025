@@ -1,7 +1,6 @@
 import mongoose, { model, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { register } from "../controllers/users.controller";
 import Joi from "joi";
 
 const userSchema = new Schema({
@@ -39,17 +38,17 @@ userSchema.pre('save', async function () {
     console.log(this);
 });
 
-const JoiSchemas = {
+export const JoiUserSchemas = {
     register: Joi.object({
         username: Joi.string().required(),
         password: Joi.string()
             .min(4) // מינימום 4 תווים
             .pattern(/^[a-zA-Z0-9]+$/) // סיסמא מכילה אותיות באנגלית או מספרים
             .required(),
-        email: Joi.string().email().required(), // אימייל תקין
+        email: Joi.string().email().lowercase().required(), // אימייל תקין + המרה לאותיות קטנות
     }),
     login: Joi.object({
-        email: Joi.string().required(),
+        email: Joi.string().lowercase().required(), // המרה לאותיות קטנות
         password: Joi.string().required(),
     }),
 };
