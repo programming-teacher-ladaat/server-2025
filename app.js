@@ -65,7 +65,9 @@ app.use(notFound);
 app.use(errorHandler);
 
 // 4. הרצת שרת
-const port = 5000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`Example app listening on http://localhost:${port}`)
 });
+
+// my cloud server: https://my-awsome-server-2025.onrender.com
