@@ -1,12 +1,20 @@
-import { model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { register } from "../controllers/users.controller";
+import Joi from "joi";
 
 const userSchema = new Schema({
     username: { type: String, required: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, minlength: 2 },
     email: { type: String, unique: true, required: true },
-    role: { type: String, enum: ['admin', 'user'], default: 'user' }
+    role: { type: String, enum: ['admin', 'user'], default: 'user' },
+    orders: [{
+        _id: { type: Schema.Types.ObjectId, ref: 'products' },
+        name: String,
+        price: Number,
+        amount: Number // ניתן להוסיף שדות נוספים שלא קיימים באוסף מוצרים
+    }],
 });
 
 export const generateToken = (user) => {
@@ -22,13 +30,28 @@ userSchema.pre('save', async function () {
     // hash the password
     const salt = await bcrypt.genSalt(10);
     console.log(salt);
-    
+
     const hash = await bcrypt.hash(this.password, salt);
-    
+
     // Store hash in your password DB
     this.password = hash;
-    
+
     console.log(this);
-})
+});
+
+const JoiSchemas = {
+    register: Joi.object({
+        username: Joi.string().required(),
+        password: Joi.string()
+            .min(4) // מינימום 4 תווים
+            .pattern(/^[a-zA-Z0-9]+$/) // סיסמא מכילה אותיות באנגלית או מספרים
+            .required(),
+        email: Joi.string().email().required(), // אימייל תקין
+    }),
+    login: Joi.object({
+        email: Joi.string().required(),
+        password: Joi.string().required(),
+    }),
+};
 
 export default model('users', userSchema);

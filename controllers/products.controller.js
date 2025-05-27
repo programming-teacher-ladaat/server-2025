@@ -1,11 +1,26 @@
 import Product from '../models/product.model.js';
+import User from '../models/user.model.js';
 
 let products = [];
 
 export const getAllProducts = async (req, res, next) => {
     try {
-        console.log(req.myNumber, 'from controller');
-        const products = await Product.find();
+        const { full } = req.query;
+        let products;
+
+        if (+full) {
+            // populate - יכניס את כל הפרטים של המשתמש
+            // ref שם השדה צריך להיות השדה של האיי-די שמוגדר עם
+            // populate כי רק לו ניתן לבצע
+            // products = await Product.find().populate('owner._id');
+
+            // אם רוצים לקחת חלק מפרטי היוזר
+            // products = await Product.find().populate('owner._id', 'email -_id');
+            products = await Product.find().populate({ path: 'owner._id', select: 'email -_id' });
+        }
+        else {
+            products = await Product.find();
+        }
         res.json(products); // נעדיף להשתמש בצורה זו כדי לחייב לשלוח אוביקט
     } catch (error) {
         next({ message: error.message });
@@ -24,7 +39,8 @@ export const getProductById = (req, res, next) => {
 export const addProduct = async (req, res, next) => {
     try {
         const { name, price, amount } = req.body;
-        const product = new Product({ name: name, amount, price });
+        const user = await User.findById(req.myUser._id);
+        const product = new Product({ name: name, amount, price, owner: user }); // יכניס רק את מה שקיים בסכמה
         await product.save();
         res.status(201).json(product);
     } catch (error) {
